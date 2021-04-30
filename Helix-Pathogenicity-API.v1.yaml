@@ -53,7 +53,7 @@ info:
 servers:
   - url: 'https://api.luca.helixlabs.ai'
 paths:
-  '/transcripts/{transcript_id}/predictions/{residue_number}/{variant_type}':
+  '/v1//transcripts/{protein_identifier}/predictions/{residue_number}/{variant_type}':
     get:
       summary: Retrieving a single variant
       tags:
@@ -118,12 +118,6 @@ paths:
         A simple summary of the prediction with assesment of the impact on the protein and the confidence in the prediction. The first is based on the 'deleterious' score, the second is based on the 'spread' score. Our spread indicates the distance between predictions of our subclassifiers in our ensemble. If the score is below 0.15, we determine that the results of the subclassifiers are concordant, resulting in "high confidence". Between 0.15 and 0.25 indicates "medium confidence" and scores above 0.25 indicate "low confidence".
     parameters:
       - schema:
-          type: string
-        name: transcript_id
-        in: path
-        required: true
-        description: 'A transcript identifier, like those found in the /transcripts endpoint response.'
-      - schema:
           type: integer
         name: residue_number
         in: path
@@ -135,7 +129,12 @@ paths:
         in: path
         required: true
         description: The variant you would like to find the information for. Only 3 letter codes are accepted. Case insensitive.
-  /transcripts:
+      - schema:
+          type: string
+        name: protein_identifier
+        in: path
+        required: true
+  /v1/transcripts:
     get:
       summary: Transcripts overview
       tags: []
@@ -156,8 +155,9 @@ paths:
                     - ENST00000260947
                     - ENST00000261584
       operationId: get-transcripts
-      description: Returns a full list of the transcripts available on our API. Each of these can be used in other calls. Transcripts are formatted as Ensemble identifiers. This list is retrieved from the `/transcripts` endpoint.
-  /batch:
+      description: Returns a full list of the proteins available on our API. Each of these can be used in other calls. Proteins are formatted as XP identifiers. This list is retrieved from the `/transcripts` endpoint.
+    parameters: []
+  /v1/batch:
     post:
       tags:
         - Pathogenicity
@@ -203,7 +203,7 @@ paths:
                       type: string
                       description: 'A simple summary of the prediction with assesment of the impact on the protein and the confidence in the prediction. The first is based on the ''deleterious'' score, the second is based on the ''spread'' score. Our spread indicates the distance between predictions of our subclassifiers in our ensemble. If the score is below 0.15, we determine that the results of the subclassifiers are concordant, resulting in "high confidence". Between 0.15 and 0.25 indicates "medium confidence" and scores above 0.25 indicate "low confidence".'
       description: |
-        Variants can also be retrieved in batches using the `/batch` endpoint. Using this endpoint requires a newline-separated list of variant identifiers, composed of three values separated by slashes (/):
+        Variants can also be retrieved in batches using the `/batch` endpoint. This is a POST only endpoint. Using this endpoint requires a newline-separated list of variant identifiers, composed of three values separated by slashes (/):
 
 
         - `transcriptId`: A transcript identifier, like those found in the /transcripts endpoint response.
@@ -213,6 +213,7 @@ paths:
         **Effect summary**
 
         A simple summary of the prediction with assesment of the impact on the protein and the confidence in the prediction. The first is based on the 'deleterious' score, the second is based on the 'spread' score. Our spread indicates the distance between predictions of our subclassifiers in our ensemble. If the score is below 0.15, we determine that the results of the subclassifiers are concordant, resulting in "high confidence". Between 0.15 and 0.25 indicates "medium confidence" and scores above 0.25 indicate "low confidence".
+    parameters: []
 components:
   schemas: {}
   securitySchemes:
