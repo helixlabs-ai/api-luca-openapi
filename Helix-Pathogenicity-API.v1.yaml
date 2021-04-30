@@ -1,0 +1,225 @@
+openapi: 3.0.0
+tags:
+  - name: Pathogenicity
+    description: Data related to pathogenicity predictions
+info:
+  title: Helix LUCA Pathogenicity API
+  version: 0.10.1
+  contact:
+    email: info@helixlabs.ai
+    url: 'https://helixlabs.ai'
+  termsOfService: 'https://www.bio-prodict.com/static/pdf/general-terms-and-conditions-V20191130-bio-prodict.pdf'
+  description: |-
+    Documentation for the Helix Labs LUCA Pathogenicity Prediction API.
+
+    The API is secured and you need credentials to be able to use it. We use the industry-standard OAuth2 protocol. For those of you who'd like more information about the ins and outs of OAuth2 please take a look here. Note that using the API is incredibly easy; you don't really need an in-depth understanding of OAuth2 to be able to use this API. This documentation contains all the information you need to get started! 
+
+    Client access tokens
+    --------------------
+
+    We use the Auth0.com service to manage authentication and authorization. Please check that you have received a client_id and a client_secret before continuing. Retrieval of your access token is a two-step process:
+
+    - Your application authenticates with Auth0 using its client_id and client_secret.
+    - Auth0 validates this information and returns an access_token.
+
+    Retrieving the access token for interaction with our API can be achieved by sending a request to the Auth0 authentication servers. Tokens have a lifespan of 24 hours. You need to re-acquire a new one before the old one runs out in order to keep using the API without interruption.
+
+
+    ```
+    curl --request POST \
+      --url https://eggwhite.eu.auth0.com/oauth/token \
+      --header 'content-type: application/json' \
+      --data '{"client_id":"<client_id>","client_secret":<client_secret>, "audience":"api.luca.helixlabs.ai","grant_type":"client_credentials"}'
+    ```
+
+    Returns the following JSON response:
+
+    ```
+    { "access_token": "<access_token>", "expires_in": 86400, "token_type": "Bearer" }
+    ```
+
+    We recommend the requests library for Python for ease of use.
+
+    API Usage
+    ---------
+
+    When you have acquired an API token, you need to include it in the Authorization header, preceded by the `Bearer` keyword.
+
+    ```
+    curl --request GET \
+      --url https://api.luca.helixlabs.ai/transcripts \
+      --header 'Authorization: Bearer <access_token>'
+    ```
+servers:
+  - url: 'https://api.luca.helixlabs.ai'
+paths:
+  '/transcripts/{transcript_id}/predictions/{residue_number}/{variant_type}':
+    get:
+      summary: Retrieving a single variant
+      tags:
+        - Pathogenicity
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  residue_type:
+                    type: string
+                    description: Wildtype amino acid
+                  residue_number:
+                    description: 1-based protein sequence number
+                    type: integer
+                  variant_type:
+                    type: string
+                    description: Variant amino acid type
+                  source_max:
+                    type: number
+                    description: Highest sub-predictor prediction
+                  source_min:
+                    type: number
+                    description: Highest sub-predictor prediction
+                  spread:
+                    type:
+                      - number
+                    description: Difference between highest and lowest sub-predictions. Can be interpreted as a measure of uncertainty.
+                  transcript_id:
+                    type: string
+                    description: Ensembl transcript identifier
+                  deleterious:
+                    description: 'Value indicating deleteriousness. Value between 0 and 1, where a value between 0 and 0.5 means benign and a value between 0.5 and 1 means deleterious.'
+                    type:
+                      - number
+                  effect_summary:
+                    type: string
+                    description: 'A simple summary of the prediction with assesment of the impact on the protein and the confidence in the prediction. The first is based on the ''deleterious'' score, the second is based on the ''spread'' score. Our spread indicates the distance between predictions of our subclassifiers in our ensemble. If the score is below 0.15, we determine that the results of the subclassifiers are concordant, resulting in "high confidence". Between 0.15 and 0.25 indicates "medium confidence" and scores above 0.25 indicate "low confidence".'
+              examples:
+                Response example:
+                  value:
+                    residue_type: Arg
+                    residue_number: 110
+                    variant_type: Ala
+                    source_max: 0.3202865839
+                    source_min: 0.259611775
+                    spread: 0.0606748089
+                    transcript_id: ENST00000622645
+                    deleterious: 0.3066707837
+                    effect_summary: '0.3067 (benign, high confidence)'
+        '404':
+          description: Will return a 404 error if the requested variant is not found.
+      operationId: 'get-transcripts-string:transcript_id-predictions-int:residue_number-string:variant_type'
+      description: |-
+        You can use this simple endpoint for single variant retrieval.
+
+        Effect summary
+        --------------
+        A simple summary of the prediction with assesment of the impact on the protein and the confidence in the prediction. The first is based on the 'deleterious' score, the second is based on the 'spread' score. Our spread indicates the distance between predictions of our subclassifiers in our ensemble. If the score is below 0.15, we determine that the results of the subclassifiers are concordant, resulting in "high confidence". Between 0.15 and 0.25 indicates "medium confidence" and scores above 0.25 indicate "low confidence".
+    parameters:
+      - schema:
+          type: string
+        name: transcript_id
+        in: path
+        required: true
+        description: 'A transcript identifier, like those found in the /transcripts endpoint response.'
+      - schema:
+          type: integer
+        name: residue_number
+        in: path
+        required: true
+        description: A number indicating the residue in this transcript. Residue numbers start at 1.
+      - schema:
+          type: string
+        name: variant_type
+        in: path
+        required: true
+        description: The variant you would like to find the information for. Only 3 letter codes are accepted. Case insensitive.
+  /transcripts:
+    get:
+      summary: Transcripts overview
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+              examples:
+                Response Example:
+                  value:
+                    - ENST00000257700
+                    - ENST00000259008
+                    - ENST00000260947
+                    - ENST00000261584
+      operationId: get-transcripts
+      description: Returns a full list of the transcripts available on our API. Each of these can be used in other calls. Transcripts are formatted as Ensemble identifiers. This list is retrieved from the `/transcripts` endpoint.
+  /batch:
+    post:
+      tags:
+        - Pathogenicity
+      summary: Batch retrieval of variant predictions
+      operationId: post-batch
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    residue_type:
+                      type: string
+                      description: Wildtype amino acid
+                    residue_number:
+                      description: 1-based protein sequence number
+                      type: integer
+                    variant_type:
+                      type: string
+                      description: Variant amino acid type
+                    source_max:
+                      type: number
+                      description: Highest sub-predictor prediction
+                    source_min:
+                      type: number
+                      description: Highest sub-predictor prediction
+                    spread:
+                      type:
+                        - number
+                      description: Difference between highest and lowest sub-predictions. Can be interpreted as a measure of uncertainty.
+                    transcript_id:
+                      type: string
+                      description: Ensembl transcript identifier
+                    deleterious:
+                      description: 'Value indicating deleteriousness. Value between 0 and 1, where a value between 0 and 0.5 means benign and a value between 0.5 and 1 means deleterious.'
+                      type:
+                        - number
+                    effect_summary:
+                      type: string
+                      description: 'A simple summary of the prediction with assesment of the impact on the protein and the confidence in the prediction. The first is based on the ''deleterious'' score, the second is based on the ''spread'' score. Our spread indicates the distance between predictions of our subclassifiers in our ensemble. If the score is below 0.15, we determine that the results of the subclassifiers are concordant, resulting in "high confidence". Between 0.15 and 0.25 indicates "medium confidence" and scores above 0.25 indicate "low confidence".'
+      description: |
+        Variants can also be retrieved in batches using the `/batch` endpoint. Using this endpoint requires a newline-separated list of variant identifiers, composed of three values separated by slashes (/):
+
+
+        - `transcriptId`: A transcript identifier, like those found in the /transcripts endpoint response.
+        - `residueNumber`: A number indicating the residue in this transcript. Residue numbers start at 1.
+        - `variantType`: The variant you would like to find the information for. Only 3 letter codes are accepted. Case insensitive.
+
+        **Effect summary**
+
+        A simple summary of the prediction with assesment of the impact on the protein and the confidence in the prediction. The first is based on the 'deleterious' score, the second is based on the 'spread' score. Our spread indicates the distance between predictions of our subclassifiers in our ensemble. If the score is below 0.15, we determine that the results of the subclassifiers are concordant, resulting in "high confidence". Between 0.15 and 0.25 indicates "medium confidence" and scores above 0.25 indicate "low confidence".
+components:
+  schemas: {}
+  securitySchemes:
+    pathogenicity_api_sec:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: ''
+          refreshUrl: ''
+          scopes: {}
