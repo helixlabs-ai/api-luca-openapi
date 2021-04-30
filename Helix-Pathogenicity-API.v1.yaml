@@ -108,16 +108,11 @@ paths:
                     transcript_id: XP_504946.1
                     variant_type: Ala
                 Response example (CSV):
-                  value:
-                    residue_type: string
-                    residue_number: 0
-                    variant_type: string
-                    source_max: 0
-                    source_min: 0
-                    spread: 0
-                    transcript_id: string
-                    deleterious: 0
-                    effect_summary: string
+                  value: 'residue_type,residue_number,variant_type,source_max,source_min,spread,transcript_id,deleterious,effect_summary Gln,110,Ala,0.096393906,0.096393906,0.0,DSM_HELIX.XP_504946.1,0.079932995,"0.0799, (benign, high confidence)"'
+            application/xml:
+              schema:
+                type: object
+                properties: {}
         '404':
           description: Will return a 404 error if the requested variant is not found.
       operationId: 'get-transcripts-string:transcript_id-predictions-int:residue_number-string:variant_type'
@@ -174,6 +169,12 @@ paths:
                     - ENST00000261584
       operationId: get-transcripts
       description: Returns a full list of the proteins available on our API. Each of these can be used in other calls. Proteins are formatted as XP identifiers. This list is retrieved from the `/transcripts` endpoint.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: format
+          description: 'Optional, the format in which you want to receive the result. This can be ''json'' or ''csv'' (''json'' is default).'
     parameters: []
   /v1/batch:
     post:
@@ -231,7 +232,44 @@ paths:
         **Effect summary**
 
         A simple summary of the prediction with assesment of the impact on the protein and the confidence in the prediction. The first is based on the 'deleterious' score, the second is based on the 'spread' score. Our spread indicates the distance between predictions of our subclassifiers in our ensemble. If the score is below 0.15, we determine that the results of the subclassifiers are concordant, resulting in "high confidence". Between 0.15 and 0.25 indicates "medium confidence" and scores above 0.25 indicate "low confidence".
+      parameters:
+        - schema:
+            type: string
+          in: query
+          description: 'Optional, the format in which you want to receive the result. This can be ''json'' or ''csv'' (''json'' is default).'
+          name: format
     parameters: []
+  '/v1/transcripts/{protein_identifier}/predictions/{residue_number}':
+    parameters:
+      - schema:
+          type: string
+        name: protein_identifier
+        in: path
+        required: true
+        description: 'The identifier indicating the protein, prefixed with XP_.'
+      - schema:
+          type: string
+        name: residue_number
+        in: path
+        required: true
+        description: A number indicating the residue in this transcript. Residue numbers start at 1.
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses: {}
+      operationId: get-v1-transcripts-protein_identifier-predictions-residue_number
+      description: |-
+        You can use this simple to retrieve predictions for all the variants on a position.
+
+        Effect summary
+        --------------
+        A simple summary of the prediction with assesment of the impact on the protein and the confidence in the prediction. The first is based on the 'deleterious' score, the second is based on the 'spread' score. Our spread indicates the distance between predictions of our subclassifiers in our ensemble. If the score is below 0.15, we determine that the results of the subclassifiers are concordant, resulting in "high confidence". Between 0.15 and 0.25 indicates "medium confidence" and scores above 0.25 indicate "low confidence".
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: format
+          description: 'Optional, the format in which you want to receive the result. This can be ''json'' or ''csv'' (''json'' is default).'
 components:
   schemas: {}
   securitySchemes:
