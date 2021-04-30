@@ -1,7 +1,7 @@
 openapi: 3.0.0
 tags:
+  - name: LUCA
   - name: Pathogenicity
-    description: Data related to pathogenicity predictions
 info:
   title: Helix LUCA Pathogenicity API
   version: 0.10.1
