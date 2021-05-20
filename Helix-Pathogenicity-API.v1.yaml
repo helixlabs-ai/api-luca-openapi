@@ -95,6 +95,9 @@ paths:
                   effect_summary:
                     type: string
                     description: 'A simple summary of the prediction with assesment of the impact on the protein and the confidence in the prediction. The first is based on the ''deleterious'' score, the second is based on the ''spread'' score. Our spread indicates the distance between predictions of our subclassifiers in our ensemble. If the score is below 0.15, we determine that the results of the subclassifiers are concordant, resulting in "high confidence". Between 0.15 and 0.25 indicates "medium confidence" and scores above 0.25 indicate "low confidence".'
+                  report_url:
+                    type: string
+                    description: A url that points towards the variant in the web interface.
               examples:
                 Response example (JSON):
                   value:
@@ -221,6 +224,9 @@ paths:
                     effect_summary:
                       type: string
                       description: 'A simple summary of the prediction with assesment of the impact on the protein and the confidence in the prediction. The first is based on the ''deleterious'' score, the second is based on the ''spread'' score. Our spread indicates the distance between predictions of our subclassifiers in our ensemble. If the score is below 0.15, we determine that the results of the subclassifiers are concordant, resulting in "high confidence". Between 0.15 and 0.25 indicates "medium confidence" and scores above 0.25 indicate "low confidence".'
+                    report_url:
+                      type: string
+                      description: A url that points towards the variant in the web interface.
       description: |
         Variants can also be retrieved in batches using the `/batch` endpoint. This is a POST only endpoint. Using this endpoint requires a newline-separated list of variant identifiers, composed of three values separated by slashes (/):
 
