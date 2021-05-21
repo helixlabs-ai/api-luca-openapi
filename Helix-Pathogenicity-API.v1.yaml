@@ -243,6 +243,18 @@ paths:
         XP_502313.1/100/His
         ```
 
+        **Sample code**
+
+        Addressing this endpoint requires sending the input as a payload with the "variants" key. Below is some sample Python3 code that requires a Bearer token defined in the `token` variable.
+
+        ```
+        requests.post(
+            "https://api.luca.helixlabs.ai/v1/batch",
+           headers={"Authorization": "Bearer %s" % token},
+           data={"variants": "XP_504946.1/2/Pro"}
+        ).json()
+        ```
+
         **Effect summary**
 
         A simple summary of the prediction with assesment of the impact on the protein and the confidence in the prediction. The first is based on the 'deleterious' score, the second is based on the 'spread' score. Our spread indicates the distance between predictions of our subclassifiers in our ensemble. If the score is below 0.15, we determine that the results of the subclassifiers are concordant, resulting in "high confidence". Between 0.15 and 0.25 indicates "medium confidence" and scores above 0.25 indicate "low confidence".
