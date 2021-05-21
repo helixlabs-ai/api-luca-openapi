@@ -232,8 +232,8 @@ paths:
 
 
         - `transcriptId`: A transcript identifier, like those found in the /transcripts endpoint response.
-        - `residueNumber`: A number indicating the residue in this transcript. Residue numbers start at 1.
-        - `variantType`: The variant you would like to find the information for. Only 3 letter codes are accepted. Case insensitive.
+        - `residueNumber`: A number indicating the position of the amino acid in this transcript. Residue numbers start at 1.
+        - `variantAminoAcid`: A three letter code indicating the amino acid you would like to find the information for. Only 3 letter codes are accepted. Case insensitive.
 
         Example input:
 
